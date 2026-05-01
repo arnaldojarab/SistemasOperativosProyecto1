@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 int algorithm = 0; 
-int quantum   = 2;
+int quantum   = 0;
 int num_trucks = 5;
 int num_docks  = 3;
 
@@ -41,6 +41,16 @@ int main(int argc, char *argv[]) {
             default:
                 print_usage(argv[0]);
         }
+    }
+    
+    if (algorithm == 1 && quantum <= 0) {
+        printf("Error: Round Robin requires -q (quantum) > 0\n");
+        exit(1);
+    }
+	
+	if (num_trucks <= 0 || num_docks <= 0) {
+        printf("Error: -n and -m must be > 0\n");
+        exit(1);
     }
 
     printf("Current configuration: Trucks=%d, Docks=%d, Algorithm=%s, Quantum=%d\n", num_trucks,  num_docks, algorithm == 0 ? "fifo" : "rr", quantum);
