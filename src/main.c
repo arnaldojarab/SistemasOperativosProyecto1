@@ -5,42 +5,45 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-int algoritmo = 0; 
+int algorithm = 0; 
 int quantum   = 2;
-int num_camiones = 5;
-int num_muelles  = 3;
+int num_trucks = 5;
+int num_docks  = 3;
 
 void print_usage(const char *prog) {
-	printf("Uso: %s [-n camiones] [-m muelles] [-a fifo|rr] [-q quantum] \n", prog);
-    	exit(1);
+    printf("Usage: %s [-n trucks] [-m docks] [-a fifo|rr] [-q quantum]\n", prog);
+    exit(1);
 }
 
 int main(int argc, char *argv[]) {
-    	int c;
+    int c;
     
-	while ((c = getopt(argc, argv, "n:m:a:q")) != -1) {
-		switch (c) {
-	    		case 'n':
-				num_camiones = atoi(optarg);
-				break;
-	    		case 'm':
-				num_muelles = atoi(optarg);
-				break;
-	    		case 'a':
-				if (strcmp(optarg, "fifo") == 0) {
-		    			algoritmo = 0;
-				} else if (strcmp(optarg, "rr") == 0) {
-		    			algoritmo = 1; 
-		 		} else {
-		    			printf("Algoritmo invalido: %s\n", optarg);
-				}
-				break;
-	    		case 'q':
-				quantum = atoi(optarg);
-				break;
-	    		default:
-				print_usage(argv[0]);
-		}
-    	}
-	printf("Configuracion actual: Camiones=%d, Muelles=%d, Algoritmo=%s, Quantum=%d\n", num_camiones, num_muelles, algoritmo == 0 ? "fifo" : "rr", quantum);
+    while ((c = getopt(argc, argv, "n:m:a:q")) != -1) {
+        switch (c) {
+            case 'n':
+                num_trucks = atoi(optarg);
+                break;
+            case 'm':
+                num_docks = atoi(optarg);
+                break;
+            case 'a':
+                if (strcmp(optarg, "fifo") == 0) {
+                    algorithm = 0;
+                } else if (strcmp(optarg, "rr") == 0) {
+                    algorithm = 1; 
+                } else {
+                    printf("Invalid algorithm: %s\n", optarg);
+                }
+                break;
+            case 'q':
+                quantum = atoi(optarg);
+                break;
+            default:
+                print_usage(argv[0]);
+        }
+    }
+
+    printf("Current configuration: Trucks=%d, Docks=%d, Algorithm=%s, Quantum=%d\n", num_trucks,  num_docks, algorithm == 0 ? "fifo" : "rr", quantum);
+
+    return 0;
 }
