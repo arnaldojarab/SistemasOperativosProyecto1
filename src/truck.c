@@ -18,8 +18,9 @@ void* run_truck(void* arg) {
     logger_log("Truck %d: NEW -> READY", t->id);
 
     while (t->remaining_time > 0) {
+        const char* prev = (t->state == READY) ? "READY" : "RUNNING";
         t->state = BLOCKED;
-        logger_log("Truck %d: READY -> BLOCKED (waiting for dock)", t->id);
+        logger_log("Truck %d: %s -> BLOCKED (waiting for dock)", t->id, prev);
 
         enqueue(t);
         sem_wait(&t->sem_turn);
