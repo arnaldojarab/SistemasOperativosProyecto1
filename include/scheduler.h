@@ -6,6 +6,8 @@
 #define FIFO 0
 #define RR   1
 
+extern sem_t docks;
+
 void scheduler_init(int algorithm, int quantum);
 void enqueue(Truck* c);
 void schedule_next();
