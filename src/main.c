@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
 		int load_time = (rand() % 8) + 2;
 
     	truck_init(&trucks[i], i, load_time); 
-    	sem_init(&trucks[i].sem_turno, 0, 0);  
+    	//sem_init(&trucks[i].sem_turno, 0, 0);  
 
     	pthread_create(&threads[i], NULL, run_truck, &trucks[i]);
     }
