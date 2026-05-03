@@ -40,6 +40,7 @@ int main(int argc, char *argv[]) {
                     algorithm = 1;
                 } else {
                     printf("Invalid algorithm: %s\n", optarg);
+                    print_usage(argv[0]);
                 }
                 break;
             case 'q':
