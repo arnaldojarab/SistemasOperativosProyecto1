@@ -27,15 +27,15 @@ void logger_log(const char* format, ...) {
     vsnprintf(message, sizeof(message), format, args);
     va_end(args);
 
-    time_t now = time(NULL);
-    struct tm* t = localtime(&now);
-
     // prevents two threads from writing at the same time
     pthread_mutex_lock(&log_mutex);
 
     // critical section
+    time_t now = time(NULL);
+    struct tm t;
+    localtime_r(&now, &t);
     fprintf(log_file, "[%02d:%02d:%02d] [T%lu] %s\n",
-            t->tm_hour, t->tm_min, t->tm_sec,
+            t.tm_hour, t.tm_min, t.tm_sec,
             (unsigned long)pthread_self(),
             message);
 
