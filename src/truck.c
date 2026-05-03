@@ -8,6 +8,9 @@ void truck_init(Truck* t, int id, int load_time) {
     t->state          = NEW;
     t->load_time      = load_time;
     t->remaining_time = load_time;
+    t->arrival_time   = time(NULL);
+    t->start_time     = 0;
+    t->finish_time    = 0;
     sem_init(&t->sem_turn, 0, 0);
 }
 
@@ -27,6 +30,7 @@ void* run_truck(void* arg) {
         sem_wait(&docks);
 
         t->state = RUNNING;
+        if (t->start_time == 0) t->start_time = time(NULL);
         logger_log("Truck %d: BLOCKED -> RUNNING (dock assigned)", t->id);
 
         int slot = get_execution_time(t->remaining_time);
@@ -41,6 +45,7 @@ void* run_truck(void* arg) {
         }
     }
 
+    t->finish_time = time(NULL);
     t->state = DONE;
     logger_log("Truck %d: RUNNING -> DONE", t->id);
 

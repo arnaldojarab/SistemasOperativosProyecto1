@@ -87,6 +87,29 @@ int main(int argc, char *argv[]) {
         pthread_join(threads[i], NULL);
     }
 
+    printf("\n%-8s %-10s %-12s %-12s\n", "Truck", "Load(s)", "Wait(s)", "Turnaround(s)");
+    printf("--------------------------------------------\n");
+
+    double total_wait       = 0;
+    double total_turnaround = 0;
+
+    for (int i = 0; i < num_trucks; i++) {
+        double turnaround = difftime(trucks[i].finish_time, trucks[i].arrival_time);
+        double waiting    = turnaround - trucks[i].load_time;
+        printf("%-8d %-10d %-12.0f %-12.0f\n",
+               trucks[i].id, trucks[i].load_time, waiting, turnaround);
+        logger_log("Truck %d: load=%ds wait=%.0fs turnaround=%.0fs",
+                   trucks[i].id, trucks[i].load_time, waiting, turnaround);
+        total_wait       += waiting;
+        total_turnaround += turnaround;
+    }
+
+    printf("--------------------------------------------\n");
+    printf("Average wait: %.2f s | Average turnaround: %.2f s\n",
+           total_wait / num_trucks, total_turnaround / num_trucks);
+    logger_log("Average wait: %.2f s | Average turnaround: %.2f s",
+               total_wait / num_trucks, total_turnaround / num_trucks);
+
     sem_destroy(&docks);
     free(trucks);
     free(threads);
