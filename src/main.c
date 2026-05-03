@@ -4,11 +4,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
+
+#include "truck.h"
+#include "scheduler.h"
 
 int algorithm = 0; 
 int quantum   = 0;
 int num_trucks = 5;
 int num_docks  = 3;
+
+sem_t docks;
 
 void print_usage(const char *prog) {
     printf("Usage: %s [-n trucks] [-m docks] [-a fifo|rr] [-q quantum]\n", prog);
@@ -18,7 +24,7 @@ void print_usage(const char *prog) {
 int main(int argc, char *argv[]) {
     int c;
     
-    while ((c = getopt(argc, argv, "n:m:a:q")) != -1) {
+    while ((c = getopt(argc, argv, "n:m:a:q:")) != -1) {
         switch (c) {
             case 'n':
                 num_trucks = atoi(optarg);
@@ -54,6 +60,41 @@ int main(int argc, char *argv[]) {
     }
 
     printf("Current configuration: Trucks=%d, Docks=%d, Algorithm=%s, Quantum=%d\n", num_trucks,  num_docks, algorithm == 0 ? "fifo" : "rr", quantum);
+
+	srand(time(NULL));
+
+	
+	
+	sem_init(&docks, 0, num_docks);
+    scheduler_init(algorithm, quantum);
+
+	Truck *trucks = malloc(sizeof(Truck) * num_trucks);
+    pthread_t *threads = malloc(sizeof(pthread_t) * num_trucks);
+
+	for (int i = 0; i < num_trucks; i++) {
+		int load_time = (rand() % 8) + 2;
+
+    	truck_init(&trucks[i], i, load_time); 
+    	sem_init(&trucks[i].sem_turno, 0, 0);  
+
+    	pthread_create(&threads[i], NULL, run_truck, &trucks[i]);
+    }
+	
+	schedule_next();
+	
+	for (int i = 0; i < num_trucks; i++) {
+		pthread_join(threads[i], NULL);
+	}
+
+
+	for (int i = 0; i < num_trucks; i++) {
+    	sem_destroy(&trucks[i].sem_turno);
+    }
+
+	sem_destroy(&docks);
+	free(trucks);
+	free(threads);
+	
 
     return 0;
 }
