@@ -8,8 +8,9 @@
 
 #include "truck.h"
 #include "scheduler.h"
+#include "logger.h"
 
-int algorithm = 0; 
+int algorithm = 0;
 int quantum   = 0;
 int num_trucks = 5;
 int num_docks  = 3;
@@ -23,7 +24,7 @@ void print_usage(const char *prog) {
 
 int main(int argc, char *argv[]) {
     int c;
-    
+
     while ((c = getopt(argc, argv, "n:m:a:q:")) != -1) {
         switch (c) {
             case 'n':
@@ -36,7 +37,7 @@ int main(int argc, char *argv[]) {
                 if (strcmp(optarg, "fifo") == 0) {
                     algorithm = 0;
                 } else if (strcmp(optarg, "rr") == 0) {
-                    algorithm = 1; 
+                    algorithm = 1;
                 } else {
                     printf("Invalid algorithm: %s\n", optarg);
                 }
@@ -48,49 +49,48 @@ int main(int argc, char *argv[]) {
                 print_usage(argv[0]);
         }
     }
-    
+
     if (algorithm == 1 && quantum <= 0) {
         printf("Error: Round Robin requires -q (quantum) > 0\n");
         exit(1);
     }
-	
-	if (num_trucks <= 0 || num_docks <= 0) {
+
+    if (num_trucks <= 0 || num_docks <= 0) {
         printf("Error: -n and -m must be > 0\n");
         exit(1);
     }
 
-    printf("Current configuration: Trucks=%d, Docks=%d, Algorithm=%s, Quantum=%d\n", num_trucks,  num_docks, algorithm == 0 ? "fifo" : "rr", quantum);
+    printf("Current configuration: Trucks=%d, Docks=%d, Algorithm=%s, Quantum=%d\n",
+           num_trucks, num_docks, algorithm == 0 ? "fifo" : "rr", quantum);
 
-	srand(time(NULL));
+    srand(time(NULL));
 
-	
-	
-	sem_init(&docks, 0, num_docks);
+    logger_init("terminal.log");
+    sem_init(&docks, 0, num_docks);
     scheduler_init(algorithm, quantum);
 
-	Truck *trucks = malloc(sizeof(Truck) * num_trucks);
+    Truck *trucks  = malloc(sizeof(Truck) * num_trucks);
     pthread_t *threads = malloc(sizeof(pthread_t) * num_trucks);
 
-	for (int i = 0; i < num_trucks; i++) {
-		int load_time = (rand() % 8) + 2;
-
-    	truck_init(&trucks[i], i, load_time); 
-
-    	pthread_create(&threads[i], NULL, run_truck, &trucks[i]);
+    for (int i = 0; i < num_trucks; i++) {
+        int load_time = (rand() % 8) + 2;
+        truck_init(&trucks[i], i, load_time);
+        pthread_create(&threads[i], NULL, run_truck, &trucks[i]);
     }
-	
-	schedule_next();
-	
-	for (int i = 0; i < num_trucks; i++) {
-		pthread_join(threads[i], NULL);
-	}
 
+    int initial = num_docks < num_trucks ? num_docks : num_trucks;
+    for (int i = 0; i < initial; i++) {
+        schedule_next();
+    }
 
+    for (int i = 0; i < num_trucks; i++) {
+        pthread_join(threads[i], NULL);
+    }
 
-	sem_destroy(&docks);
-	free(trucks);
-	free(threads);
-	
+    sem_destroy(&docks);
+    free(trucks);
+    free(threads);
+    logger_destroy();
 
     return 0;
 }
