@@ -4,12 +4,11 @@
 #include <semaphore.h>
 #include "scheduler.h"
 
-
 #define MAX_QUEUE 100
 
-static Camion* queue[MAX_QUEUE];
+static Truck* queue[MAX_QUEUE];
 static int front = 0;
-static int rear = 0;
+static int rear  = 0;
 
 static pthread_mutex_t queue_mutex;
 
@@ -21,41 +20,39 @@ static int is_empty() {
 	return front == rear;
 }
 
-static void enqueue_internal(Camion* c) {
+static void enqueue_internal(Truck* t) {
 	if (rear < MAX_QUEUE) {
-		queue[rear++] = c;
+		queue[rear++] = t;
 	}
 }
 
-static Camion* dequeue_internal() {
+static Truck* dequeue_internal() {
 	if (is_empty()) return NULL;
 	return queue[front++];
 }
 
 static void schedule_next_internal() {
-	Camion* c = dequeue_internal();
+	Truck* t = dequeue_internal();
 
-	if (c != NULL) {
-		sem_post(&c->sem_turno);  
+	if (t != NULL) {
+		sem_post(&t->sem_turno);
 	}
 }
 
-
-
 void scheduler_init(int alg, int q) {
 	algorithm = alg;
-	quantum = q;
+	quantum   = q;
 
 	pthread_mutex_init(&queue_mutex, NULL);
 
 	front = 0;
-	rear = 0;
+	rear  = 0;
 }
 
-void enqueue(Camion* c) {
+void enqueue(Truck* t) {
 	pthread_mutex_lock(&queue_mutex);
 
-	enqueue_internal(c);
+	enqueue_internal(t);
 
 	pthread_mutex_unlock(&queue_mutex);
 }
@@ -68,11 +65,11 @@ void schedule_next() {
 	pthread_mutex_unlock(&queue_mutex);
 }
 
-void notify_finish(Camion* c) {
+void notify_finish(Truck* t) {
 	pthread_mutex_lock(&queue_mutex);
 
-	if (algorithm == RR && c->tiempo_restante > 0) {
-		enqueue_internal(c);
+	if (algorithm == RR && t->remaining_time > 0) {
+		enqueue_internal(t);
 	}
 
 	schedule_next_internal();
@@ -84,10 +81,6 @@ int get_execution_time(int remaining) {
 	if (algorithm == FIFO) {
 		return remaining;
 	} else {
-		if (remaining < quantum) {
-			return remaining;
-		} else {
-			return quantum;
-		}
+		return remaining < quantum ? remaining : quantum;
 	}
 }
