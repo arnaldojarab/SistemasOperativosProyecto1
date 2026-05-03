@@ -66,13 +66,10 @@ void enqueue(Truck* t) {
 }
 
 void notify_finish(Truck* t) {
+	(void)t;
 	pthread_mutex_lock(&queue_mutex);
 
 	active_count--;
-
-	if (algorithm == RR && t->remaining_time > 0) {
-		enqueue_internal(t);
-	}
 
 	if (!is_empty()) {
 		schedule_next_internal();
