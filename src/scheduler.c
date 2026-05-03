@@ -35,7 +35,7 @@ static void schedule_next_internal() {
 	Truck* t = dequeue_internal();
 
 	if (t != NULL) {
-		sem_post(&t->sem_turno);
+		sem_post(&t->sem_turn);
 	}
 }
 

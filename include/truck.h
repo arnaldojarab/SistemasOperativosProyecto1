@@ -16,7 +16,7 @@ typedef struct {
     TruckState state;
     int load_time;
     int remaining_time;
-    sem_t sem_turno;
+    sem_t sem_turn;
 } Truck;
 
 void  truck_init(Truck* t, int id, int load_time);

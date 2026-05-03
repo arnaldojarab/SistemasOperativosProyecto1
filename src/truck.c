@@ -8,7 +8,7 @@ void truck_init(Truck* t, int id, int load_time) {
     t->state          = NEW;
     t->load_time      = load_time;
     t->remaining_time = load_time;
-    sem_init(&t->sem_turno, 0, 0);
+    sem_init(&t->sem_turn, 0, 0);
 }
 
 void* run_truck(void* arg) {
@@ -22,7 +22,7 @@ void* run_truck(void* arg) {
         logger_log("Truck %d: READY -> BLOCKED (waiting for dock)", t->id);
 
         enqueue(t);
-        sem_wait(&t->sem_turno);
+        sem_wait(&t->sem_turn);
         sem_wait(&docks);
 
         t->state = RUNNING;
@@ -43,6 +43,6 @@ void* run_truck(void* arg) {
     t->state = DONE;
     logger_log("Truck %d: RUNNING -> DONE", t->id);
 
-    sem_destroy(&t->sem_turno);
+    sem_destroy(&t->sem_turn);
     return NULL;
 }
