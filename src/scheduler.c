@@ -6,8 +6,6 @@
 
 
 #define MAX_QUEUE 100
-#define FIFO 0
-#define RR   1
 
 static Camion* queue[MAX_QUEUE];
 static int front = 0;
