@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
 
     logger_init("terminal.log");
     sem_init(&docks, 0, num_docks);
-    scheduler_init(algorithm, quantum);
+    scheduler_init(algorithm, quantum, num_docks);
 
     Truck *trucks  = malloc(sizeof(Truck) * num_trucks);
     pthread_t *threads = malloc(sizeof(pthread_t) * num_trucks);
@@ -76,11 +76,6 @@ int main(int argc, char *argv[]) {
         int load_time = (rand() % 8) + 2;
         truck_init(&trucks[i], i, load_time);
         pthread_create(&threads[i], NULL, run_truck, &trucks[i]);
-    }
-
-    int initial = num_docks < num_trucks ? num_docks : num_trucks;
-    for (int i = 0; i < initial; i++) {
-        schedule_next();
     }
 
     for (int i = 0; i < num_trucks; i++) {

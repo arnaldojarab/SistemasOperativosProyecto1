@@ -14,6 +14,8 @@ static pthread_mutex_t queue_mutex;
 
 static int algorithm;
 static int quantum;
+static int num_docks;
+static int active_count = 0;
 
 
 static int is_empty() {
@@ -33,15 +35,17 @@ static Truck* dequeue_internal() {
 
 static void schedule_next_internal() {
 	Truck* t = dequeue_internal();
-
 	if (t != NULL) {
+		active_count++;
 		sem_post(&t->sem_turn);
 	}
 }
 
-void scheduler_init(int alg, int q) {
-	algorithm = alg;
-	quantum   = q;
+void scheduler_init(int alg, int q, int ndocks) {
+	algorithm    = alg;
+	quantum      = q;
+	num_docks    = ndocks;
+	active_count = 0;
 
 	pthread_mutex_init(&queue_mutex, NULL);
 
@@ -54,13 +58,9 @@ void enqueue(Truck* t) {
 
 	enqueue_internal(t);
 
-	pthread_mutex_unlock(&queue_mutex);
-}
-
-void schedule_next() {
-	pthread_mutex_lock(&queue_mutex);
-
-	schedule_next_internal();
+	if (active_count < num_docks) {
+		schedule_next_internal();
+	}
 
 	pthread_mutex_unlock(&queue_mutex);
 }
@@ -68,11 +68,15 @@ void schedule_next() {
 void notify_finish(Truck* t) {
 	pthread_mutex_lock(&queue_mutex);
 
+	active_count--;
+
 	if (algorithm == RR && t->remaining_time > 0) {
 		enqueue_internal(t);
 	}
 
-	schedule_next_internal();
+	if (!is_empty()) {
+		schedule_next_internal();
+	}
 
 	pthread_mutex_unlock(&queue_mutex);
 }

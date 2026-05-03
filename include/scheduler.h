@@ -8,10 +8,9 @@
 
 extern sem_t docks;
 
-void scheduler_init(int algorithm, int quantum);
-void enqueue(Truck* c);
-void schedule_next();
-void notify_finish(Truck* c);
+void scheduler_init(int algorithm, int quantum, int num_docks);
+void enqueue(Truck* t);
+void notify_finish(Truck* t);
 int get_execution_time(int remaining);
 
 #endif
