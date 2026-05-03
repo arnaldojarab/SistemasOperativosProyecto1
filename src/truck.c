@@ -23,6 +23,7 @@ void* run_truck(void* arg) {
 
         enqueue(t);
         sem_wait(&t->sem_turno);
+        sem_wait(&docks);
 
         t->state = RUNNING;
         logger_log("Truck %d: BLOCKED -> RUNNING (dock assigned)", t->id);
@@ -31,6 +32,7 @@ void* run_truck(void* arg) {
         sleep(slot);
         t->remaining_time -= slot;
 
+        sem_post(&docks);
         notify_finish(t);
 
         if (t->remaining_time > 0) {
