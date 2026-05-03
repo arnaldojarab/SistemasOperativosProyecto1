@@ -1,19 +1,21 @@
-# Compilador
-CC = gcc
-
-# Flags
+CC     = gcc
 CFLAGS = -Wall -Wextra -pthread -Iinclude
 
-# Archivos
-SRC = src/test.c src/logger.c
-OUT = test
+# Main binary
+SRC_MAIN = src/main.c src/truck.c src/scheduler.c src/logger.c
+OUT_MAIN = terminal
 
-# Regla principal
-all: $(OUT)
+# Test binary
+SRC_TEST = src/test.c src/logger.c
+OUT_TEST = test
 
-$(OUT): $(SRC)
-	$(CC) $(CFLAGS) $(SRC) -o $(OUT)
+all: $(OUT_MAIN)
 
-# Limpiar binarios
+$(OUT_MAIN): $(SRC_MAIN)
+	$(CC) $(CFLAGS) $(SRC_MAIN) -o $(OUT_MAIN)
+
+test: $(SRC_TEST)
+	$(CC) $(CFLAGS) $(SRC_TEST) -o $(OUT_TEST)
+
 clean:
-	rm -f $(OUT)
+	rm -f $(OUT_MAIN) $(OUT_TEST)
