@@ -1,5 +1,11 @@
 # Proyecto 1 de Sistemas Operativos
 
+## Cómo ejecutar
+```bash
+make
+./terminal -n (cantidad de camiones) -m (cantidad de muelles) -a (fifo/rr) -q (tiempo del quantum si se escogió Round Robin)
+```
+
 # Estructura del Proyecto
 
 ## ¿Qué hace cada archivo?
