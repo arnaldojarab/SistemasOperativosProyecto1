@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
 		int load_time = (rand() % 8) + 2;
 
     	truck_init(&trucks[i], i, load_time); 
-    	//sem_init(&trucks[i].sem_turno, 0, 0);  
+    	//sem_init(&trucks[i].sem_wait, 0, 0);  
 
     	pthread_create(&threads[i], NULL, run_truck, &trucks[i]);
     }
@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
 
 
 	for (int i = 0; i < num_trucks; i++) {
-    	sem_destroy(&trucks[i].sem_turno);
+    	sem_destroy(&trucks[i].sem_wait);
     }
 
 	sem_destroy(&docks);
