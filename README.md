@@ -31,3 +31,16 @@ Automatiza la compilación. En lugar de compilar cada archivo a mano, basta con 
 
 ### logger.c 
 En la función logger_log cuando en hilo intenta acceder al archivo de log se usa un mutex_lock para evitar race condition
+
+
+### scheduler.c 
+Las regiones críticas se encuentran en las funciones enqueue y notify_finish, donde se modifican variables compartidas como la cola (`queue`, `front`, `rear`) y el contador `active_count`. Estas se protegen mediante el uso del mutex `queue_mutex`, asegurando exclusión mutua y evitando condiciones de carrera.
+
+# Manejo de Deadlock
+El sistema está diseñado para evitar interbloqueos (deadlocks) mediante una gestión ordenada de los recursos compartidos y la sincronización entre hilos. Un deadlock ocurre cuando varios hilos quedan atrapados en una espera circular, sin posibilidad de avanzar. Para prevenirlo, el programa rompe las condiciones que normalmente lo hacen posible.
+
+La primera estrategia es imponer un orden fijo en la obtención de recursos. Cada camión sigue la misma secuencia: se registra en el planificador, espera su turno con un semáforo propio y solo entonces accede a un muelle. Este orden elimina la posibilidad de que dos hilos reclamen recursos en secuencias distintas y terminen bloqueados entre sí.
+
+Además, se evita la retención de recursos mientras se espera otro. Un camión en la cola del scheduler no ocupa un muelle hasta que recibe autorización, lo que impide que los hilos acumulen recursos sin usarlos. Una vez que terminan, liberan inmediatamente el muelle y notifican al planificador, garantizando que los recursos estén siempre disponibles para otros.
+
+Finalmente, el scheduler central controla cuántos camiones pueden usar los muelles al mismo tiempo y protege la cola con un mutex para mantener la consistencia. Con estas medidas, el sistema elimina las condiciones críticas de los interbloqueos y asegura que todos los hilos avancen de manera segura y ordenada.
