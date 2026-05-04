@@ -38,7 +38,7 @@ Las regiones críticas se encuentran en las funciones `enqueue` y `notify_finish
 ### truck.c
 El acceso al muelle está controlado por un semáforo inicializado con la cantidad de muelles disponibles. Cada camión decrementa el semáforo al entrar y lo incrementa al salir, garantizando que nunca más camiones que muelles disponibles operen simultáneamente.
 
-# Prevención de Interbloqueo (Deadlock)
+# Prevención de Deadlock
 
 Durante el desarrollo se identificaron y resolvieron dos situaciones que causaban deadlock:
 
