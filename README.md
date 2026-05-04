@@ -26,3 +26,8 @@ Módulo de registro de operaciones global. Protege el acceso al log con un `mute
 
 ### `Makefile`
 Automatiza la compilación. En lugar de compilar cada archivo a mano, basta con correr `make` en la terminal y genera el ejecutable completo enlazando todos los `.c`.
+
+# Regiones Críticas
+
+### logger.c 
+En la función logger_log cuando en hilo intenta acceder al archivo de log se usa un mutex_lock para evitar race condition
