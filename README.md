@@ -29,16 +29,16 @@ Automatiza la compilación. En lugar de compilar cada archivo a mano, basta con 
 
 # Regiones Críticas
 
-### logger.c 
-En la función logger_log cuando un hilo intenta acceder al archivo de log se usa un mutex_lock para evitar race condition
+### logger.c
+En la función `logger_log`, cuando un hilo intenta acceder al archivo de log se usa un `mutex_lock` para evitar race condition.
 
 ### scheduler.c
-La cola de planificación es accedida concurrentemente por todos los hilos. Un mutex protege las operaciones de inserción y extracción de la cola, así como el contador de camiones activos, evitando condiciones de carrera.
+Las regiones críticas se encuentran en las funciones `enqueue` y `notify_finish`, donde se modifican variables compartidas como la cola (`queue`, `front`, `rear`) y el contador `active_count`. Estas se protegen mediante el uso del mutex `queue_mutex`, asegurando exclusión mutua y evitando condiciones de carrera.
 
 ### truck.c
 El acceso al muelle está controlado por un semáforo inicializado con la cantidad de muelles disponibles. Cada camión decrementa el semáforo al entrar y lo incrementa al salir, garantizando que nunca más camiones que muelles disponibles operen simultáneamente.
 
-# Prevención de Deadlock
+# Prevención de Interbloqueo (Deadlock)
 
 Durante el desarrollo se identificaron y resolvieron dos situaciones que causaban deadlock:
 
