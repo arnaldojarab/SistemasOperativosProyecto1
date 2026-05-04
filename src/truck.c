@@ -26,6 +26,7 @@ void* run_truck(void* arg) {
         logger_log("Truck %d: %s -> BLOCKED (waiting for dock)", t->id, prev);
 
         enqueue(t);
+        // critical region
         sem_wait(&t->sem_turn);
         sem_wait(&docks);
 
